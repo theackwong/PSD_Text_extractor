@@ -13,6 +13,7 @@ for group in psd_layers:
         for group_layer in group.descendants():
             if group_layer.kind == "type":
                 layer_info = {}
+
                 print("Layer ID: " + str(group_layer.layer_id) +
                       "\nName: " + group_layer.name +
                       "\ntext: " + group_layer.text +
@@ -29,5 +30,6 @@ for group in psd_layers:
 
                 extracted_text_info[group_layer.layer_id] = layer_info
 
-with open('data.json', 'w') as output:
-    json.dump(extracted_text_info, output, indent=4)
+
+with open('data.json', 'w', encoding='utf-8') as output:
+    json.dump(extracted_text_info, output, indent=4, ensure_ascii=False)
