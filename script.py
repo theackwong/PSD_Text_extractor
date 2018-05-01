@@ -1,28 +1,33 @@
-import re
 from psd_tools import PSDImage
-import pytoshop
+import json
+
 image_location = "18CY1_Blade_Optane.JA_JP.psd"
 
 psd_loaded = PSDImage.load(image_location)
 
-layer = psd_loaded.layers[1]
+psd_layers = psd_loaded.layers
+extracted_text_info = {}
 
-#psd.print_tree()
-for layeres in layer.descendants():
-    if layeres.kind == "type":
-        print("ID: " + str(layeres.layer_id) +
-              "\nName: " + layeres.name +
-              "\ntext: " + layeres.text +
-              "\nheight: " + str(layeres.height) +
-              "\nwidth: " + str(layeres.width) +
-              "\nopacity: " + str(layeres.opacity))
-        #print(layeres.engine_data)
+for group in psd_layers:
+    if group.kind == "group":
+        for group_layer in group.descendants():
+            if group_layer.kind == "type":
+                layer_info = {}
+                print("Layer ID: " + str(group_layer.layer_id) +
+                      "\nName: " + group_layer.name +
+                      "\ntext: " + group_layer.text +
+                      "\nheight: " + str(group_layer.height) +
+                      "\nwidth: " + str(group_layer.width) +
+                      "\nopacity: " + str(group_layer.opacity) + "\n")
 
-with open(image_location, 'rb') as fd:
-    psd = pytoshop.read(fd)
-    print(psd.layer_and_mask_info.layer_info.layer_records[12].name)
-    for layerRecord in psd.layer_and_mask_info.layer_info.layer_records:
-        #decoded = pytoshop.util.decode_unicode_string(layerRecord.name)
-        print(layerRecord.name + " ")
-        if layerRecord.name == "第 8 世代インテル® Core™ プロセッサー":
-            print("test")
+                layer_info = { "layer_id": str(group_layer.layer_id),
+                               "name" : group_layer.name,
+                               "text" : group_layer.text,
+                               "height" : group_layer.height,
+                               "width" : group_layer.width,
+                               "opacity" : group_layer.opacity}
+
+                extracted_text_info[group_layer.layer_id] = layer_info
+
+with open('data.json', 'w') as output:
+    json.dump(extracted_text_info, output, indent=4)
